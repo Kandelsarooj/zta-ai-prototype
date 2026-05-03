@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}ZTA + AI Security{% endblock %}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1c1e21;min-height:100vh}
+.navbar{background:#1877f2;padding:13px 28px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-size:16px;font-weight:700;color:#fff;text-decoration:none}
+.nav-sub{font-size:11px;color:#d0e8ff;margin-top:2px}
+.nav-links{display:flex;align-items:center;gap:16px}
+.nav-link{font-size:12px;color:#d0e8ff;text-decoration:none;padding:5px 10px;border-radius:6px;transition:background .15s}
+.nav-link:hover{background:rgba(255,255,255,.15);color:#fff}
+.nav-link.active{background:rgba(255,255,255,.2);color:#fff}
+.status-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);padding:5px 12px;border-radius:20px;font-size:11px;color:#fff}
+.dot{width:7px;height:7px;border-radius:50%;background:#42f584;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.page{max-width:1050px;margin:0 auto;padding:24px 20px}
+.card{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:18px 20px;margin-bottom:16px}
+.lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#65676b;margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid transparent;text-decoration:none;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
+.btn-p{background:#1877f2;color:#fff;border-color:#1877f2}
+.btn-s{background:#fff;color:#65676b;border-color:#dddfe2}
+.btn-g{background:#31a24c;color:#fff;border-color:#31a24c}
+.btn-r{background:#fa383e;color:#fff;border-color:#fa383e}
+.btn-w{background:#f0a500;color:#fff;border-color:#f0a500}
+.footer{text-align:center;font-size:11px;color:#65676b;padding:16px;background:#fff;border-top:1px solid #dddfe2;margin-top:12px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f0f2f5}::-webkit-scrollbar-thumb{background:#ccd0d5;border-radius:4px}
+{% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div>
+    <a href="/" class="nav-brand">🔐 ZTA + AI Cloud Security</a>
+    <div class="nav-sub">MSc Dissertation Prototype — Saroj Kandel (34114665) — University of West London</div>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/results" class="nav-link">Results</a>
+    <a href="/about" class="nav-link">About</a>
+    <a href="/reset" class="nav-link">Reset</a>
+    <div class="status-pill"><div class="dot"></div>System Active</div>
+  </div>
+</nav>
+{% block content %}{% endblock %}
+<div class="footer">ZTA + AI Cloud Security Prototype &mdash; Saroj Kandel (34114665) &mdash; MSc Software Engineering &mdash; University of West London &mdash; 2025</div>
+</body>
+</html>

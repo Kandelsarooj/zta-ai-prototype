@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Final Decision — ZTA + AI Security{% endblock %}
+{% block extra_style %}
+.prog{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.ps{flex:1;padding:11px;text-align:center;font-size:10px;font-weight:600;color:#65676b;border-right:1px solid #dddfe2}
+.ps:last-child{border-right:none}.ps.active{background:#1877f2;color:#fff}.ps.done{background:#e7f3ec;color:#31a24c}
+.dec-banner{border-radius:12px;padding:24px 28px;margin-bottom:18px;color:#fff;display:flex;align-items:center;gap:18px}
+.db-granted{background:linear-gradient(135deg,#31a24c,#1a7a32)}
+.db-limited{background:linear-gradient(135deg,#f0a500,#c07800)}
+.db-denied{background:linear-gradient(135deg,#fa383e,#c0121a)}
+.db-icon{font-size:46px}.db-title{font-size:24px;font-weight:700;margin-bottom:5px}.db-sub{font-size:12px;opacity:.88;max-width:480px;line-height:1.6}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f2f5;font-size:13px}
+.sum-row:last-child{border-bottom:none}
+.pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.pp{background:#e7f3ec;color:#31a24c}.pf{background:#fde8e8;color:#fa383e}
+.score-big{font-size:44px;font-weight:700;text-align:center;line-height:1}
+.sc-low{color:#31a24c}.sc-med{color:#f0a500}.sc-high{color:#fa383e}
+.bar-bg{background:#e4e6eb;border-radius:6px;height:12px;overflow:hidden;margin:8px 0}
+.bar-fill{height:100%;border-radius:6px}
+.fill-g{background:#31a24c}.fill-a{background:#f0a500}.fill-r{background:#fa383e}
+.perm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.perm{border-radius:8px;padding:10px;text-align:center;border:1px solid}
+.perm.ok{background:#e7f3ec;border-color:#31a24c;color:#31a24c}
+.perm.no{background:#f8f9fa;border-color:#dddfe2;color:#bcc0c4;text-decoration:line-through}
+.perm-i{font-size:16px;margin-bottom:4px}.perm-n{font-size:10px;font-weight:500}
+.alert-box{border-radius:8px;padding:11px 14px;display:flex;gap:10px;border-left:3px solid}
+.al-warn{background:#fef3e2;border-color:#f0a500}
+.al-crit{background:#fde8e8;border-color:#fa383e}
+.al-ok{background:#e7f3ec;border-color:#31a24c}
+.al-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.al-msg{font-size:11px;color:#1c1e21;line-height:1.5}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:12px}
+.stat-num{font-size:24px;font-weight:700}.stat-lbl{font-size:11px;color:#65676b;margin-top:2px}
+.blue{color:#1877f2}.green{color:#31a24c}.red{color:#fa383e}.amber{color:#f0a500}
+.log-scroll{max-height:180px;overflow-y:auto}
+.log-row{display:flex;gap:8px;padding:5px 7px;border-radius:6px;margin-bottom:3px;font-size:11px;align-items:flex-start}
+.log-row.g{background:#e7f3ec}.log-row.d{background:#fde8e8}
+.log-time{color:#65676b;min-width:56px;font-family:monospace}
+.log-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.lb-g{background:#31a24c;color:#fff}.lb-d{background:#fa383e;color:#fff}
+.log-msg{color:#1c1e21;line-height:1.4}
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="prog">
+    <div class="ps done">1 — Scenario</div>
+    <div class="ps done">2 — ZTA Checks</div>
+    <div class="ps done">3 — AI Analysis</div>
+    {% if stepup_passed is not none %}<div class="ps done">3b — Step-Up</div>{% endif %}
+    <div class="ps active">4 — Decision</div>
+  </div>
+
+  {% if access_level == 'FULL' %}
+  <div class="dec-banner db-granted">
+    <div class="db-icon">✅</div>
+    <div><div class="db-title">Full Access Granted</div><div class="db-sub">All ZTA checks passed and AI risk score is within the safe range. The user has been granted full access to all authorised resources.</div></div>
+  </div>
+  {% elif access_level == 'LIMITED' %}
+  <div class="dec-banner db-limited">
+    <div class="db-icon">⚠️</div>
+    <div><div class="db-title">Limited Access Granted — Read Only</div><div class="db-sub">ZTA checks passed but AI detected medium-risk behaviour. Step-up authentication completed. Access is restricted to read-only mode — download and edit functions are disabled.</div></div>
+  </div>
+  {% else %}
+  <div class="dec-banner db-denied">
+    <div class="db-icon">⛔</div>
+    <div><div class="db-title">Access Denied</div>
+    <div class="db-sub">
+      {% if not zta_result.passed %}A Zero Trust check failed — access blocked at the ZTA layer.
+      {% elif ai_result.risk_score >= 70 %}AI risk score ({{ ai_result.risk_score }}) exceeded the threshold of 70 — automatically blocked.
+      {% else %}Step-up authentication failed — identity could not be verified under suspicious conditions.{% endif %}
+    </div></div>
+  </div>
+  {% endif %}
+
+  <div class="two-col">
+    <div class="card" style="margin-bottom:0">
+      <div class="lbl">ZTA Check Results</div>
+      {% set c = zta_result.checks %}
+      <div class="sum-row"><span>👤 Identity</span><span class="pill {{ 'pp' if c.identity.passed else 'pf' }}">{{ 'PASS' if c.identity.passed else 'FAIL' }}</span></div>
+      <div class="sum-row"><span>🔒 Role</span><span class="pill {{ 'pp' if c.role.passed else 'pf' }}">{{ 'PASS' if c.role.passed else 'FAIL' }}</span></div>
+      <div class="sum-row"><span>💻 Device</span><span class="pill {{ 'pp' if c.device.passed else 'pf' }}">{{ 'PASS' if c.device.passed else 'FAIL' }}</span></div>
+      <div class="sum-row"><span>🌍 Location</span><span class="pill {{ 'pp' if c.location.passed else 'pf' }}">{{ 'PASS' if c.location.passed else 'FAIL' }}</span></div>
+      {% if stepup_passed is not none %}
+      <div class="sum-row"><span>🔐 Step-Up Auth</span><span class="pill {{ 'pp' if stepup_passed else 'pf' }}">{{ 'PASS' if stepup_passed else 'FAIL' }}</span></div>
+      {% endif %}
+      <div class="sum-row" style="border-top:2px solid #dddfe2;margin-top:6px;padding-top:10px">
+        <span style="font-weight:700">Overall ZTA</span>
+        <span class="pill {{ 'pp' if zta_result.passed else 'pf' }}">{{ 'PASSED' if zta_result.passed else 'FAILED' }}</span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="lbl">AI Risk Analysis</div>
+      {% set sc = ai_result.risk_score %}
+      {% set cls = 'sc-low' if sc < 30 else ('sc-med' if sc < 70 else 'sc-high') %}
+      {% set fcls = 'fill-g' if sc < 30 else ('fill-a' if sc < 70 else 'fill-r') %}
+      <div class="score-big {{ cls }}">{{ sc }}</div>
+      <div style="text-align:center;font-size:12px;font-weight:600;margin-top:4px" class="{{ cls }}">{{ ai_result.risk_label }} RISK</div>
+      <div class="bar-bg"><div class="bar-fill {{ fcls }}" style="width:{{ sc }}%"></div></div>
+      <div style="font-size:11px;color:#65676b;text-align:center">Block threshold: 70 &nbsp;|&nbsp; Step-up trigger: 50 &nbsp;|&nbsp; Score: {{ sc }}</div>
+      <div style="margin-top:8px;padding:6px 10px;border-radius:6px;font-size:11px;text-align:center;{% if sc < 30 %}background:#e7f3ec;color:#31a24c{% elif sc < 70 %}background:#fef3e2;color:#b45309{% else %}background:#fde8e8;color:#fa383e{% endif %}">
+        {% if sc < 30 %}Normal behaviour — no action required{% elif sc < 70 %}Suspicious — step-up authentication triggered{% else %}High risk — access blocked automatically{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">Risk-Based Access Control — What This User Can Do</div>
+    {% set all_perms = [('📊','View Dashboard','view_dashboard'),('📄','Read Reports','read_reports'),('⬇️','Download Files','download_files'),('✏️','Edit Data','edit_data'),('⚙️','Settings','manage_settings'),('👥','Manage Users','manage_users')] %}
+    <div class="perm-grid">
+      {% for icon,name,key in all_perms %}
+      <div class="perm {{ 'ok' if key in permissions else 'no' }}">
+        <div class="perm-i">{{ icon }}</div>
+        <div class="perm-n">{{ name }}</div>
+        <div style="font-size:9px;margin-top:2px">{{ '✔ Allowed' if key in permissions else '✘ Blocked' }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="alert-box {{ 'al-crit' if alert.level == 'CRITICAL' else ('al-warn' if alert.level == 'WARNING' else 'al-ok') }}">
+      <div style="font-size:18px">{{ '🔴' if alert.level == 'CRITICAL' else ('🟡' if alert.level == 'WARNING' else '🟢') }}</div>
+      <div>
+        <div class="al-lbl" style="color:{{ '#fa383e' if alert.level == 'CRITICAL' else ('#b45309' if alert.level == 'WARNING' else '#31a24c') }}">{{ alert.level }}</div>
+        <div class="al-msg">{{ alert.message }}</div>
+        <div style="font-size:10px;color:#65676b;margin-top:2px">Action: {{ alert.action }} — {{ alert.time }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lbl">Session statistics</div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num blue">{{ stats.total }}</div><div class="stat-lbl">Total Requests</div></div>
+    <div class="stat"><div class="stat-num green">{{ stats.allowed }}</div><div class="stat-lbl">Access Granted</div></div>
+    <div class="stat"><div class="stat-num red">{{ stats.blocked }}</div><div class="stat-lbl">Access Blocked</div></div>
+    <div class="stat"><div class="stat-num amber">{{ stats.threats }}</div><div class="stat-lbl">AI Threats Flagged</div></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">Full Access Log</div>
+    <div class="log-scroll">
+      {% for log in logs %}
+      <div class="log-row {{ 'g' if log.final_decision == 'GRANTED' else 'd' }}">
+        <span class="log-time">{{ log.timestamp[-8:] }}</span>
+        <span class="log-badge {{ 'lb-g' if log.final_decision == 'GRANTED' else 'lb-d' }}">{{ log.final_decision }}</span>
+        <span class="log-msg">{{ log.username }} — {{ log.attack_type }} — AI: {{ log.ai_risk_score }} — {{ log.access_level }}</span>
+      </div>
+      {% endfor %}
+      {% if not logs %}<div style="font-size:12px;color:#65676b;padding:8px">No logs yet.</div>{% endif %}
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <a href="/" class="btn btn-p">← Try Another Scenario</a>
+    <a href="/results" class="btn btn-s">📊 View Full Results</a>
+    <a href="/export-csv" class="btn btn-g">⬇️ Export CSV</a>
+    <a href="/reset" class="btn btn-s">↺ Reset All</a>
+  </div>
+</div>
+{% endblock %}

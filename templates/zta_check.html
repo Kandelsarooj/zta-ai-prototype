@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}ZTA Checks — {{ scenario.label }}{% endblock %}
+{% block extra_style %}
+.prog{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.ps{flex:1;padding:11px;text-align:center;font-size:10px;font-weight:600;color:#65676b;border-right:1px solid #dddfe2}
+.ps:last-child{border-right:none}.ps.active{background:#1877f2;color:#fff}.ps.done{background:#e7f3ec;color:#31a24c}
+.banner{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.b-icon{font-size:32px}.b-title{font-size:16px;font-weight:700;margin-bottom:3px}.b-desc{font-size:12px;color:#65676b}
+.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.cc{background:#fff;border:2px solid #dddfe2;border-radius:10px;padding:16px;transition:border-color .3s}
+.cc.checking{border-color:#1877f2;animation:chk 1s infinite}
+.cc.pass{border-color:#31a24c;background:#f5fbf6}.cc.fail{border-color:#fa383e;background:#fff5f5}
+@keyframes chk{0%,100%{opacity:1}50%{opacity:.6}}
+.cc-icon{font-size:24px;margin-bottom:6px}.cc-name{font-size:13px;font-weight:600;margin-bottom:5px}
+.cc-desc{font-size:11px;color:#65676b;margin-bottom:8px}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.pw{background:#f0f2f5;color:#65676b}.pc{background:#dbeafe;color:#1877f2}
+.pp{background:#e7f3ec;color:#31a24c}.pf{background:#fde8e8;color:#fa383e}
+.cc-msg{font-size:11px;color:#65676b;margin-top:6px;line-height:1.4;min-height:16px}
+.spinner{display:none;width:14px;height:14px;border:2px solid #dddfe2;border-top-color:#1877f2;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:6px}
+.spinner.show{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="prog">
+    <div class="ps done">1 — Scenario</div>
+    <div class="ps active">2 — ZTA Checks</div>
+    <div class="ps">3 — AI Analysis</div>
+    <div class="ps">4 — Decision</div>
+  </div>
+  <div class="banner">
+    <div class="b-icon">{{ scenario.icon }}</div>
+    <div><div class="b-title">{{ scenario.label }}</div><div class="b-desc">{{ scenario.description }}</div></div>
+  </div>
+  <div class="lbl">Zero Trust Architecture — all 4 checks must pass (Never trust, always verify)</div>
+  <div class="checks">
+    <div class="cc" id="cc-identity">
+      <div class="cc-icon">👤</div>
+      <div class="cc-name">Check 1 — Identity Verification</div>
+      <div class="cc-desc">Validates username and password against trusted user directory</div>
+      <span class="pill pw" id="cp-identity">⏳ Waiting</span>
+      <div class="cc-msg" id="cm-identity"></div>
+    </div>
+    <div class="cc" id="cc-role">
+      <div class="cc-icon">🔒</div>
+      <div class="cc-name">Check 2 — Role and Privilege</div>
+      <div class="cc-desc">Verifies the user has an assigned role — enforces least-privilege access</div>
+      <span class="pill pw" id="cp-role">⏳ Waiting</span>
+      <div class="cc-msg" id="cm-role"></div>
+    </div>
+    <div class="cc" id="cc-device">
+      <div class="cc-icon">💻</div>
+      <div class="cc-name">Check 3 — Device Trust</div>
+      <div class="cc-desc">Checks if the device is a registered, managed device</div>
+      <span class="pill pw" id="cp-device">⏳ Waiting</span>
+      <div class="cc-msg" id="cm-device"></div>
+    </div>
+    <div class="cc" id="cc-location">
+      <div class="cc-icon">🌍</div>
+      <div class="cc-name">Check 4 — Location Verification</div>
+      <div class="cc-desc">Confirms the login originates from a trusted geographic region</div>
+      <span class="pill pw" id="cp-location">⏳ Waiting</span>
+      <div class="cc-msg" id="cm-location"></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button class="btn btn-p" id="run-btn" onclick="runZTA()">▶ Run ZTA Checks<span class="spinner" id="spin"></span></button>
+    <a href="/" class="btn btn-s">← Back to Home</a>
+  </div>
+  <div id="next-div" style="display:none;margin-top:12px">
+    <a href="/ai-analysis" class="btn btn-p">Continue to AI Analysis →</a>
+  </div>
+  <div id="deny-div" style="display:none;margin-top:12px;background:#fde8e8;border:1px solid #fa383e;border-radius:10px;padding:14px">
+    <div style="font-size:13px;font-weight:600;color:#fa383e;margin-bottom:4px">⛔ Access Denied by ZTA</div>
+    <div style="font-size:12px;color:#1c1e21">One or more Zero Trust checks failed. This is Zero Trust in action — fail any single check and access is immediately blocked. Redirecting to decision page...</div>
+  </div>
+</div>
+<script>
+const SK = "{{ key }}";
+const delay = ms => new Promise(r => setTimeout(r, ms));
+function setPill(id, type, text) {
+  const el = document.getElementById('cp-' + id);
+  el.className = 'pill ' + type;
+  el.textContent = text;
+}
+function setCard(id, cls) { document.getElementById('cc-' + id).className = 'cc ' + cls; }
+function setMsg(id, text) { document.getElementById('cm-' + id).textContent = text; }
+async function runZTA() {
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('spin').classList.add('show');
+  const checks = ['identity','role','device','location'];
+  for (const c of checks) { setCard(c,'checking'); setPill(c,'pc','🔄 Checking...'); }
+  const resp = await fetch('/api/run-zta', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({scenario_key: SK}) });
+  const data = await resp.json();
+  document.getElementById('spin').classList.remove('show');
+  const map = { identity: data.checks.identity, role: data.checks.role, device: data.checks.device, location: data.checks.location };
+  for (const [key, val] of Object.entries(map)) {
+    await delay(450);
+    setCard(key, val.passed ? 'pass' : 'fail');
+    setPill(key, val.passed ? 'pp' : 'pf', val.passed ? '✔ PASS' : '✘ FAIL');
+    setMsg(key, val.message);
+  }
+  await delay(400);
+  if (data.passed) { document.getElementById('next-div').style.display = 'block'; }
+  else { document.getElementById('deny-div').style.display = 'block'; setTimeout(() => { window.location.href = '/ai-analysis'; }, 3000); }
+}
+</script>
+{% endblock %}

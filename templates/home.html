@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Home — ZTA + AI Security{% endblock %}
+{% block extra_style %}
+.hero{background:linear-gradient(135deg,#1877f2,#0d5dbf);border-radius:12px;padding:32px;margin-bottom:20px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.hero h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hero p{font-size:13px;color:#d0e8ff;line-height:1.7;max-width:500px}
+.hero-badge{background:rgba(255,255,255,.15);border-radius:10px;padding:16px 20px;text-align:center;min-width:120px}
+.hero-num{font-size:30px;font-weight:700}
+.hero-lbl{font-size:11px;color:#d0e8ff;margin-top:3px}
+.steps{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.step{flex:1;padding:12px;text-align:center;font-size:11px;color:#65676b;border-right:1px solid #dddfe2}
+.step:last-child{border-right:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:#1877f2;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.step-name{font-weight:600;color:#1c1e21;font-size:11px;margin-bottom:2px}
+.scen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.scen{background:#fff;border:1.5px solid #dddfe2;border-radius:10px;padding:16px;cursor:pointer;text-decoration:none;color:inherit;display:block;transition:border-color .2s,transform .15s,box-shadow .2s}
+.scen:hover{border-color:#1877f2;transform:translateY(-2px);box-shadow:0 4px 14px rgba(24,119,242,.1)}
+.scen-icon{font-size:26px;margin-bottom:8px}
+.scen-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.scen-desc{font-size:11px;color:#65676b;line-height:1.5;margin-bottom:8px}
+.tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.tag-safe{background:#e7f3ec;color:#31a24c}
+.tag-warn{background:#fef3e2;color:#b45309}
+.tag-danger{background:#fde8e8;color:#fa383e}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:14px}
+.stat-num{font-size:26px;font-weight:700}
+.stat-lbl{font-size:11px;color:#65676b;margin-top:2px}
+.blue{color:#1877f2}.green{color:#31a24c}.red{color:#fa383e}.amber{color:#f0a500}
+.log-row{display:flex;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:3px;font-size:11px;align-items:flex-start}
+.log-row.g{background:#e7f3ec}.log-row.d{background:#fde8e8}.log-row.w{background:#fef3e2}
+.log-time{color:#65676b;min-width:56px;font-family:monospace}
+.log-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.lb-g{background:#31a24c;color:#fff}.lb-d{background:#fa383e;color:#fff}.lb-w{background:#f0a500;color:#fff}
+.log-msg{color:#1c1e21;line-height:1.4}
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="hero">
+    <div>
+      <h1>Zero Trust + AI Cloud Security</h1>
+      <p>This prototype demonstrates how Zero Trust Architecture (ZTA) and Artificial Intelligence work together to protect cloud environments from cyber attacks. Select a scenario below to begin.</p>
+    </div>
+    <div class="hero-badge">
+      <div class="hero-num">{{ stats.total }}</div>
+      <div class="hero-lbl">Total simulations run</div>
+    </div>
+  </div>
+  <div class="lbl">How it works — 4 stages</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-name">Choose Scenario</div>Pick a login situation</div>
+    <div class="step"><div class="step-num">2</div><div class="step-name">ZTA Checks</div>4 rules verified</div>
+    <div class="step"><div class="step-num">3</div><div class="step-name">AI Analysis</div>Risk score calculated</div>
+    <div class="step"><div class="step-num">4</div><div class="step-name">Decision</div>Access granted or denied</div>
+  </div>
+  <div class="lbl">Choose a scenario to simulate</div>
+  <div class="scen-grid">
+    <a href="/zta-check/normal" class="scen"><div class="scen-icon">✅</div><div class="scen-title">Normal User Login</div><div class="scen-desc">Legitimate employee, trusted device, normal working hours</div><span class="tag tag-safe">Expected: Granted</span></a>
+    <a href="/zta-check/brute_force" class="scen"><div class="scen-icon">💥</div><div class="scen-title">Brute Force Attack</div><div class="scen-desc">15 rapid attempts, wrong password, unknown device</div><span class="tag tag-danger">Expected: Denied</span></a>
+    <a href="/zta-check/insider" class="scen"><div class="scen-icon">😈</div><div class="scen-title">Insider Threat</div><div class="scen-desc">Real employee logging in at 2am — suspicious behaviour</div><span class="tag tag-warn">Expected: Step-Up</span></a>
+    <a href="/zta-check/lateral" class="scen"><div class="scen-icon">➡️</div><div class="scen-title">Lateral Movement</div><div class="scen-desc">Authenticated user making rapid repeated access attempts</div><span class="tag tag-danger">Expected: Denied</span></a>
+    <a href="/zta-check/zeroday" class="scen"><div class="scen-icon">⚠️</div><div class="scen-title">Zero-Day Attack</div><div class="scen-desc">Unknown user, unregistered device, suspicious payload</div><span class="tag tag-danger">Expected: Denied</span></a>
+    <div class="scen" style="background:#f8f9fa;border-style:dashed;cursor:default;display:flex;flex-direction:column;justify-content:center;align-items:center">
+      <div class="scen-icon" style="font-size:20px">📊</div>
+      <div class="scen-title" style="text-align:center">Session Summary</div>
+      <div class="scen-desc" style="text-align:center">{{ stats.total }} attempts — {{ stats.allowed }} granted — {{ stats.blocked }} blocked</div>
+      <a href="/results" class="btn btn-p" style="font-size:10px;padding:5px 12px;margin-top:6px">View full results</a>
+    </div>
+  </div>
+  <div class="lbl">Session statistics</div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num blue">{{ stats.total }}</div><div class="stat-lbl">Total Requests</div></div>
+    <div class="stat"><div class="stat-num green">{{ stats.allowed }}</div><div class="stat-lbl">Access Granted</div></div>
+    <div class="stat"><div class="stat-num red">{{ stats.blocked }}</div><div class="stat-lbl">Access Blocked</div></div>
+    <div class="stat"><div class="stat-num amber">{{ stats.threats }}</div><div class="stat-lbl">AI Threats Flagged</div></div>
+  </div>
+  {% if logs %}
+  <div class="card">
+    <div class="lbl">Recent access log</div>
+    {% for log in logs %}
+    <div class="log-row {{ 'g' if log.final_decision == 'GRANTED' else 'd' }}">
+      <span class="log-time">{{ log.timestamp[-8:] }}</span>
+      <span class="log-badge {{ 'lb-g' if log.final_decision == 'GRANTED' else 'lb-d' }}">{{ log.final_decision }}</span>
+      <span class="log-msg">{{ log.username }} — {{ log.attack_type }} — AI: {{ log.ai_risk_score }} — {{ log.access_level }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

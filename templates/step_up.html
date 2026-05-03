@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Step-Up Authentication{% endblock %}
+{% block extra_style %}
+.prog{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.ps{flex:1;padding:11px;text-align:center;font-size:10px;font-weight:600;color:#65676b;border-right:1px solid #dddfe2}
+.ps:last-child{border-right:none}.ps.active{background:#f0a500;color:#fff}.ps.done{background:#e7f3ec;color:#31a24c}
+.warn-banner{background:linear-gradient(135deg,#f0a500,#d4840a);border-radius:12px;padding:22px 26px;margin-bottom:20px;color:#fff;display:flex;align-items:center;gap:16px}
+.wb-icon{font-size:40px}.wb-title{font-size:18px;font-weight:700;margin-bottom:5px}.wb-sub{font-size:12px;opacity:.88;line-height:1.5}
+.su-card{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:22px;max-width:540px;margin:0 auto}
+.score-box{background:#fef3e2;border:1px solid #f0a500;border-radius:8px;padding:14px;text-align:center;margin-bottom:18px}
+.score-n{font-size:44px;font-weight:700;color:#f0a500}.score-l{font-size:13px;color:#b45309;margin-top:3px}
+.bar-bg{background:#e4e6eb;border-radius:6px;height:10px;overflow:hidden;margin:8px 0}
+.bar-fill{height:100%;background:#f0a500;border-radius:6px}
+.q-label{font-size:13px;font-weight:600;margin-bottom:8px}
+.q-box{background:#f0f2f5;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:500;margin-bottom:12px}
+.q-input{width:100%;padding:10px 12px;border:1.5px solid #dddfe2;border-radius:8px;font-size:13px;outline:none;transition:border-color .2s;font-family:Arial,sans-serif}
+.q-input:focus{border-color:#1877f2}
+.info-box{background:#f0f2f5;border-radius:8px;padding:12px;margin-top:14px;font-size:11px;color:#65676b;line-height:1.7}
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="prog">
+    <div class="ps done">1 — Scenario</div>
+    <div class="ps done">2 — ZTA Checks</div>
+    <div class="ps done">3 — AI Analysis</div>
+    <div class="ps active">3b — Step-Up</div>
+    <div class="ps">4 — Decision</div>
+  </div>
+  <div class="warn-banner">
+    <div class="wb-icon">⚠️</div>
+    <div>
+      <div class="wb-title">Unusual Activity — Step-Up Authentication Required</div>
+      <div class="wb-sub">The AI detected suspicious behaviour for this login. Before access is granted, you must answer an additional security question. This is Zero Trust in action — continuous verification based on real-time risk assessment.</div>
+    </div>
+  </div>
+  <div class="su-card">
+    <div class="score-box">
+      <div class="score-n">{{ ai_score }}</div>
+      <div class="score-l">AI Risk Score — MEDIUM — Step-up triggered (threshold: 50+)</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:{{ ai_score }}%"></div></div>
+    </div>
+    <div class="q-label">🔐 Security Question</div>
+    <div class="q-box">{{ question }}</div>
+    <input class="q-input" type="text" id="answer" placeholder="Type your answer here..." autocomplete="off" onkeypress="if(event.key==='Enter')verify()"/>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-w" onclick="verify()">✔ Verify My Identity</button>
+      <a href="/" class="btn btn-s">✕ Cancel</a>
+    </div>
+    <div id="result" style="display:none;margin-top:12px;padding:12px;border-radius:8px;font-size:12px;font-weight:500"></div>
+    <div class="info-box">
+      <strong>What is Step-Up Authentication?</strong><br>
+      Step-up authentication is an additional verification layer triggered automatically when the AI detects suspicious behaviour. Even if the standard ZTA checks passed, unusual patterns — like logging in at 2am — trigger this extra challenge. This implements the Zero Trust principle of continuous verification based on dynamic risk assessment.
+    </div>
+  </div>
+</div>
+<script>
+async function verify() {
+  const ans = document.getElementById('answer').value.trim();
+  if (!ans) { document.getElementById('answer').style.borderColor='#fa383e'; return; }
+  const resp = await fetch('/api/verify-stepup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({answer: ans}) });
+  const data = await resp.json();
+  const res = document.getElementById('result');
+  res.style.display = 'block';
+  if (data.passed) {
+    res.style.background = '#e7f3ec'; res.style.color = '#31a24c';
+    res.textContent = '✅ Correct — you will receive limited (read-only) access. Redirecting...';
+  } else {
+    res.style.background = '#fde8e8'; res.style.color = '#fa383e';
+    res.textContent = '❌ Incorrect answer — access will be denied. Redirecting...';
+  }
+  setTimeout(() => { window.location.href = '/decision'; }, 2200);
+}
+document.getElementById('answer').focus();
+</script>
+{% endblock %}
