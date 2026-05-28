@@ -3,50 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}ZTA + AI Security{% endblock %}</title>
+<title>{% block title %}ZTA + AI Security{% endblock %} — UWL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
+:root{
+  --bg:#f8f9fb;--surface:#ffffff;--surface2:#f1f3f7;
+  --border:#e2e6ed;--border2:#d0d5de;
+  --text:#1a1d23;--text2:#5a6072;--text3:#8892a4;
+  --blue:#2563eb;--blue-light:#eff6ff;--blue-dark:#1d4ed8;
+  --green:#16a34a;--green-light:#f0fdf4;
+  --amber:#d97706;--amber-light:#fffbeb;
+  --red:#dc2626;--red-light:#fef2f2;
+  --purple:#7c3aed;--purple-light:#f5f3ff;
+  --radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1c1e21;min-height:100vh}
-.navbar{background:#1877f2;padding:13px 28px;display:flex;align-items:center;justify-content:space-between}
-.nav-brand{font-size:16px;font-weight:700;color:#fff;text-decoration:none}
-.nav-sub{font-size:11px;color:#d0e8ff;margin-top:2px}
-.nav-links{display:flex;align-items:center;gap:16px}
-.nav-link{font-size:12px;color:#d0e8ff;text-decoration:none;padding:5px 10px;border-radius:6px;transition:background .15s}
-.nav-link:hover{background:rgba(255,255,255,.15);color:#fff}
-.nav-link.active{background:rgba(255,255,255,.2);color:#fff}
-.status-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);padding:5px 12px;border-radius:20px;font-size:11px;color:#fff}
-.dot{width:7px;height:7px;border-radius:50%;background:#42f584;animation:pulse 1.8s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.page{max-width:1050px;margin:0 auto;padding:24px 20px}
-.card{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:18px 20px;margin-bottom:16px}
-.lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#65676b;margin-bottom:10px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid transparent;text-decoration:none;transition:opacity .15s,transform .1s}
-.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
-.btn-p{background:#1877f2;color:#fff;border-color:#1877f2}
-.btn-s{background:#fff;color:#65676b;border-color:#dddfe2}
-.btn-g{background:#31a24c;color:#fff;border-color:#31a24c}
-.btn-r{background:#fa383e;color:#fff;border-color:#fa383e}
-.btn-w{background:#f0a500;color:#fff;border-color:#f0a500}
-.footer{text-align:center;font-size:11px;color:#65676b;padding:16px;background:#fff;border-top:1px solid #dddfe2;margin-top:12px}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f0f2f5}::-webkit-scrollbar-thumb{background:#ccd0d5;border-radius:4px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+.navbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:58px;gap:0;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:32px}
+.nav-brand-icon{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.nav-brand-icon svg{stroke:#fff}
+.nav-brand-text{font-size:15px;font-weight:700;color:var(--text)}
+.nav-brand-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.nav-items{display:flex;align-items:center;gap:2px;flex:1}
+.nav-link{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s}
+.nav-link:hover{background:var(--surface2);color:var(--text)}
+.nav-link.active{background:var(--blue-light);color:var(--blue)}
+.nav-link svg{width:15px;height:15px}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.alert-badge{background:var(--red);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:1px 6px;margin-left:2px}
+.status-badge{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid #bbf7d0;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--green)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.page{max-width:1100px;margin:0 auto;padding:24px 20px}
+.page-header{margin-bottom:20px}
+.page-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px}
+.page-sub{font-size:13px;color:var(--text2)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.card-title svg{width:15px;height:15px;color:var(--text3)}
+.label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid transparent;text-decoration:none;transition:all .15s;line-height:1}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-success{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-outline{background:var(--surface);color:var(--text2);border-color:var(--border2)}
+.btn-ghost{background:transparent;color:var(--text2);border-color:transparent}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn svg{width:14px;height:14px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.pill-green{background:var(--green-light);color:var(--green)}
+.pill-red{background:var(--red-light);color:var(--red)}
+.pill-amber{background:var(--amber-light);color:var(--amber)}
+.pill-blue{background:var(--blue-light);color:var(--blue)}
+.pill-gray{background:var(--surface2);color:var(--text2)}
+.pill svg{width:11px;height:11px}
+.spinner{display:none;width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+.spinner.show{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{background:var(--surface);border-top:1px solid var(--border);text-align:center;padding:14px;font-size:11px;color:var(--text3);margin-top:24px}
+.progress-steps{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+.ps{flex:1;padding:11px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);border-right:1px solid var(--border)}
+.ps:last-child{border-right:none}
+.ps.done{background:var(--green-light);color:var(--green)}
+.ps.active{background:var(--blue);color:#fff}
+.ps.warn{background:var(--amber-light);color:var(--amber)}
+input,select{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s;font-family:inherit}
+input:focus,select:focus{border-color:var(--blue)}
+label{font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px}
+.form-group{margin-bottom:14px}
+.info-box{border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.info-box svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.info-blue{background:var(--blue-light);color:#1e40af;border:1px solid #bfdbfe}
+.info-green{background:var(--green-light);color:#14532d;border:1px solid #bbf7d0}
+.info-amber{background:var(--amber-light);color:#78350f;border:1px solid #fde68a}
+.info-red{background:var(--red-light);color:#7f1d1d;border:1px solid #fecaca}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.bar-bg{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.fill-green{background:var(--green)}.fill-amber{background:var(--amber)}.fill-red{background:var(--red)}.fill-blue{background:var(--blue)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 {% block extra_style %}{% endblock %}
 </style>
 </head>
 <body>
+
 <nav class="navbar">
-  <div>
-    <a href="/" class="nav-brand">🔐 ZTA + AI Cloud Security</a>
-    <div class="nav-sub">MSc Dissertation Prototype — Saroj Kandel (34114665) — University of West London</div>
+  <a href="/" class="nav-brand">
+    <div class="nav-brand-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <div class="nav-brand-text">ZTA + AI Security</div>
+      <div class="nav-brand-sub">Saroj Kandel (34114665) — UWL MSc</div>
+    </div>
+  </a>
+
+  <div class="nav-items">
+    <a href="/" class="nav-link {{ 'active' if request.path == '/' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="/register" class="nav-link {{ 'active' if request.path == '/register' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Register User
+    </a>
+    <a href="/users" class="nav-link {{ 'active' if request.path == '/users' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </a>
+    <a href="/alerts" class="nav-link {{ 'active' if request.path == '/alerts' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Alerts
+      {% if stats is defined and stats.unread_alerts > 0 %}<span class="alert-badge">{{ stats.unread_alerts }}</span>{% endif %}
+    </a>
+    <a href="/results" class="nav-link {{ 'active' if request.path == '/results' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Results
+    </a>
+    <a href="/about" class="nav-link {{ 'active' if request.path == '/about' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      About
+    </a>
   </div>
-  <div class="nav-links">
-    <a href="/" class="nav-link">Home</a>
-    <a href="/results" class="nav-link">Results</a>
-    <a href="/about" class="nav-link">About</a>
-    <a href="/reset" class="nav-link">Reset</a>
-    <div class="status-pill"><div class="dot"></div>System Active</div>
+
+  <div class="nav-right">
+    <a href="/reset" class="btn btn-ghost btn-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.14"/></svg>
+      Reset
+    </a>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      System Active
+    </div>
   </div>
 </nav>
+
 {% block content %}{% endblock %}
-<div class="footer">ZTA + AI Cloud Security Prototype &mdash; Saroj Kandel (34114665) &mdash; MSc Software Engineering &mdash; University of West London &mdash; 2025</div>
+
+<div class="footer">
+  ZTA + AI Cloud Security Prototype &nbsp;&mdash;&nbsp; Saroj Kandel (34114665) &nbsp;&mdash;&nbsp;
+  MSc Software Engineering &nbsp;&mdash;&nbsp; University of West London &nbsp;&mdash;&nbsp; 2025
+  &nbsp;&mdash;&nbsp; <a href="https://github.com/Kandelsarooj/zta-ai-prototype" style="color:var(--blue)">GitHub</a>
+</div>
+
+<script>
+feather.replace();
+</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

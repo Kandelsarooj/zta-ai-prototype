@@ -1,72 +1,45 @@
 {% extends "base.html" %}
-{% block title %}About — ZTA + AI Security{% endblock %}
-{% block extra_style %}
-.about-hero{background:linear-gradient(135deg,#1877f2,#0d5dbf);border-radius:12px;padding:28px;margin-bottom:20px;color:#fff}
-.about-hero h1{font-size:22px;font-weight:700;margin-bottom:8px}
-.about-hero p{font-size:13px;color:#d0e8ff;line-height:1.7}
-.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.tech{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:16px;text-align:center}
-.tech-icon{font-size:28px;margin-bottom:8px}.tech-name{font-size:13px;font-weight:700;margin-bottom:4px}.tech-desc{font-size:11px;color:#65676b;line-height:1.5}
-.file-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f0f2f5;font-size:12px}
-.file-row:last-child{border-bottom:none}
-.file-name{font-family:monospace;font-size:12px;color:#1877f2;font-weight:600;min-width:160px}
-.file-desc{color:#65676b;line-height:1.5}
-.scenario-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f2f5;font-size:12px;align-items:flex-start}
-.scenario-row:last-child{border-bottom:none}
-.sc-icon{font-size:20px;min-width:28px}
-.sc-name{font-weight:700;color:#1c1e21;margin-bottom:2px}
-.sc-desc{color:#65676b;line-height:1.5}
-{% endblock %}
+{% block title %}About{% endblock %}
 {% block content %}
 <div class="page">
-  <div class="about-hero">
-    <h1>About This Prototype</h1>
-    <p>This system was designed and built as part of an MSc Software Engineering dissertation at the University of West London. It demonstrates the combined operation of Zero Trust Architecture (ZTA) and Artificial Intelligence (AI)-based anomaly detection for cloud environment security.</p>
+  <div class="page-header">
+    <div class="page-title">About This System</div>
+    <div class="page-sub">Technical documentation for the ZTA + AI Cloud Security prototype</div>
   </div>
 
   <div class="card" style="margin-bottom:14px">
-    <div class="lbl">Dissertation Details</div>
-    <div style="font-size:13px;line-height:2;color:#1c1e21">
-      <strong>Title:</strong> Cybersecurity Challenges in Cloud Computing: A Strategic Analysis of Zero Trust Architecture and AI-Based Threat Detection Mechanism<br>
-      <strong>Author:</strong> Saroj Kandel (Student ID: 34114665)<br>
-      <strong>Programme:</strong> MSc Software Engineering<br>
-      <strong>Institution:</strong> University of West London<br>
-      <strong>Module:</strong> Research Methods (CP70011E)<br>
-      <strong>Research Question:</strong> How effectively can ZTA and AI-based threat detection address cloud cybersecurity challenges?
+    <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Dissertation Details</div>
+    <table>
+      <tr><td style="font-weight:600;width:200px">Title</td><td>Cybersecurity Challenges in Cloud Computing: A Strategic Analysis of Zero Trust Architecture and AI-Based Threat Detection Mechanism</td></tr>
+      <tr><td style="font-weight:600">Author</td><td>Saroj Kandel (Student ID: 34114665)</td></tr>
+      <tr><td style="font-weight:600">Programme</td><td>MSc Software Engineering — University of West London</td></tr>
+      <tr><td style="font-weight:600">Module</td><td>Research Methods (CP70011E)</td></tr>
+      <tr><td style="font-weight:600">Live URL</td><td><a href="https://zta-ai-prototype.onrender.com" style="color:var(--blue)">https://zta-ai-prototype.onrender.com</a></td></tr>
+      <tr><td style="font-weight:600">GitHub</td><td><a href="https://github.com/Kandelsarooj/zta-ai-prototype" style="color:var(--blue)">github.com/Kandelsarooj/zta-ai-prototype</a></td></tr>
+    </table>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px">
+    {% for name, desc in [('Python 3','Primary programming language for all system logic'),('Flask 3','Lightweight web framework connecting all components'),('scikit-learn','Isolation Forest machine learning algorithm'),('SQLite','Built-in database storing all login attempt logs'),('NumPy','Numerical processing for AI feature analysis'),('Feather Icons','Professional SVG icon system')] %}
+    <div class="card" style="padding:14px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">{{ name }}</div>
+      <div style="font-size:11px;color:var(--text3)">{{ desc }}</div>
     </div>
-  </div>
-
-  <div class="lbl">Technology stack — all open source, zero cost</div>
-  <div class="tech-grid">
-    <div class="tech"><div class="tech-icon">🐍</div><div class="tech-name">Python 3.13</div><div class="tech-desc">Primary programming language for all system logic</div></div>
-    <div class="tech"><div class="tech-icon">🌐</div><div class="tech-name">Flask 3.1</div><div class="tech-desc">Lightweight web framework connecting all components</div></div>
-    <div class="tech"><div class="tech-icon">🤖</div><div class="tech-name">scikit-learn</div><div class="tech-desc">Isolation Forest algorithm for AI anomaly detection</div></div>
-    <div class="tech"><div class="tech-icon">🗄️</div><div class="tech-name">SQLite</div><div class="tech-desc">Built-in database storing all login attempt logs</div></div>
-    <div class="tech"><div class="tech-icon">📊</div><div class="tech-name">NumPy</div><div class="tech-desc">Numerical processing for AI feature analysis</div></div>
-    <div class="tech"><div class="tech-icon">🎨</div><div class="tech-name">HTML / CSS / JS</div><div class="tech-desc">Frontend dashboard interface and animations</div></div>
+    {% endfor %}
   </div>
 
   <div class="card">
-    <div class="lbl">System files explained</div>
-    <div class="file-row"><span class="file-name">app.py</span><span class="file-desc">Main Flask application — connects all components, handles routing between pages, manages Flask sessions, processes API requests</span></div>
-    <div class="file-row"><span class="file-name">zta.py</span><span class="file-desc">Zero Trust Architecture engine — implements 4 sequential checks (identity, role, device, location) based on NIST SP 800-207 framework</span></div>
-    <div class="file-row"><span class="file-name">ai_detector.py</span><span class="file-desc">AI anomaly detector — Isolation Forest trained on 20 normal login patterns, analyses 5 behavioural features, returns risk score 0–100</span></div>
-    <div class="file-row"><span class="file-name">database.py</span><span class="file-desc">SQLite database manager — creates tables, saves every login attempt, retrieves logs for dashboard, exports CSV for dissertation data</span></div>
-    <div class="file-row"><span class="file-name">templates/</span><span class="file-desc">HTML pages — home, zta_check, ai_analysis, step_up, decision, results, about — all using base.html template inheritance</span></div>
-  </div>
-
-  <div class="card">
-    <div class="lbl">Attack scenarios and expected outcomes</div>
-    <div class="scenario-row"><div class="sc-icon">✅</div><div><div class="sc-name">Normal Login — alice / managed_laptop / London / 10am</div><div class="sc-desc">All 4 ZTA checks pass. AI score low (approx 39). Full access granted. Demonstrates system correctly identifies legitimate users without false positives.</div></div></div>
-    <div class="scenario-row"><div class="sc-icon">💥</div><div><div class="sc-name">Brute Force — attacker / unknown_vm / Unknown / 3am / 15 attempts / 1s speed</div><div class="sc-desc">ZTA fails at identity check (wrong password). AI score 100. Denied immediately. Demonstrates ZTA blocks attacks before AI even runs.</div></div></div>
-    <div class="scenario-row"><div class="sc-icon">😈</div><div><div class="sc-name">Insider Threat — bob / managed_laptop / London / 2am</div><div class="sc-desc">ZTA passes (legitimate credentials). AI score medium (~65) due to unusual hour. Step-up authentication triggered. If passed: limited read-only access. Demonstrates AI catches what ZTA cannot.</div></div></div>
-    <div class="scenario-row"><div class="sc-icon">➡️</div><div><div class="sc-name">Lateral Movement — dave / managed_laptop / London / 8 attempts / 5s speed</div><div class="sc-desc">ZTA passes. AI score high (~76) due to rapid repeated attempts. Denied by AI. Demonstrates AI detecting automated attack patterns from authenticated user.</div></div></div>
-    <div class="scenario-row"><div class="sc-icon">⚠️</div><div><div class="sc-name">Zero-Day — unknown_user / unregistered_device / Tor Exit Node / 20 attempts</div><div class="sc-desc">ZTA fails immediately (unknown user). AI score 100. Double denial. Demonstrates system resilience against completely novel attack patterns.</div></div></div>
-  </div>
-
-  <div style="display:flex;gap:10px">
-    <a href="/" class="btn btn-p">← Back to Home</a>
-    <a href="/results" class="btn btn-s">📊 View Results</a>
+    <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Attack Scenarios and Expected Outcomes</div>
+    <table>
+      <thead><tr><th>Scenario</th><th>Description</th><th>ZTA Outcome</th><th>AI Score</th><th>Final Decision</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600">Normal Login</td><td>alice / managed_laptop / London / 10am</td><td><span class="pill pill-green">Pass</span></td><td style="color:var(--green)">~39</td><td><span class="pill pill-green">Full Access</span></td></tr>
+        <tr><td style="font-weight:600">Brute Force</td><td>15 attempts / unknown device / 3am</td><td><span class="pill pill-red">Fail (identity)</span></td><td style="color:var(--red)">100</td><td><span class="pill pill-red">Denied</span></td></tr>
+        <tr><td style="font-weight:600">Insider Threat</td><td>bob / valid credentials / 2am (answer: DEV42)</td><td><span class="pill pill-green">Pass</span></td><td style="color:var(--amber)">~65</td><td><span class="pill pill-amber">Limited (Step-Up)</span></td></tr>
+        <tr><td style="font-weight:600">Lateral Movement</td><td>8 rapid attempts / trusted user / 2pm</td><td><span class="pill pill-green">Pass</span></td><td style="color:var(--red)">~76</td><td><span class="pill pill-red">Denied</span></td></tr>
+        <tr><td style="font-weight:600">Zero-Day</td><td>unknown user / unregistered device / Tor</td><td><span class="pill pill-red">Fail (identity)</span></td><td style="color:var(--red)">100</td><td><span class="pill pill-red">Denied</span></td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}

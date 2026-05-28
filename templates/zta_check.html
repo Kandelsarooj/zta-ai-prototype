@@ -1,109 +1,173 @@
 {% extends "base.html" %}
 {% block title %}ZTA Checks — {{ scenario.label }}{% endblock %}
 {% block extra_style %}
-.prog{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
-.ps{flex:1;padding:11px;text-align:center;font-size:10px;font-weight:600;color:#65676b;border-right:1px solid #dddfe2}
-.ps:last-child{border-right:none}.ps.active{background:#1877f2;color:#fff}.ps.done{background:#e7f3ec;color:#31a24c}
-.banner{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
-.b-icon{font-size:32px}.b-title{font-size:16px;font-weight:700;margin-bottom:3px}.b-desc{font-size:12px;color:#65676b}
-.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
-.cc{background:#fff;border:2px solid #dddfe2;border-radius:10px;padding:16px;transition:border-color .3s}
-.cc.checking{border-color:#1877f2;animation:chk 1s infinite}
-.cc.pass{border-color:#31a24c;background:#f5fbf6}.cc.fail{border-color:#fa383e;background:#fff5f5}
-@keyframes chk{0%,100%{opacity:1}50%{opacity:.6}}
-.cc-icon{font-size:24px;margin-bottom:6px}.cc-name{font-size:13px;font-weight:600;margin-bottom:5px}
-.cc-desc{font-size:11px;color:#65676b;margin-bottom:8px}
-.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
-.pw{background:#f0f2f5;color:#65676b}.pc{background:#dbeafe;color:#1877f2}
-.pp{background:#e7f3ec;color:#31a24c}.pf{background:#fde8e8;color:#fa383e}
-.cc-msg{font-size:11px;color:#65676b;margin-top:6px;line-height:1.4;min-height:16px}
-.spinner{display:none;width:14px;height:14px;border:2px solid #dddfe2;border-top-color:#1877f2;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:6px}
-.spinner.show{display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
+.check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.check-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .3s}
+.check-card.checking{border-color:var(--blue);background:var(--blue-light)}
+.check-card.pass{border-color:var(--green);background:var(--green-light)}
+.check-card.fail{border-color:var(--red);background:var(--red-light)}
+.check-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.check-num{width:26px;height:26px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-card.checking .check-num{background:var(--blue);color:#fff}
+.check-card.pass .check-num{background:var(--green);color:#fff}
+.check-card.fail .check-num{background:var(--red);color:#fff}
+.check-name{font-size:13px;font-weight:600;color:var(--text)}
+.check-desc{font-size:11px;color:var(--text3);margin-bottom:10px}
+.check-msg{font-size:12px;color:var(--text2);line-height:1.5;min-height:18px;padding:6px 8px;background:rgba(0,0,0,.04);border-radius:var(--radius-sm)}
+.check-card.pass .check-msg{background:rgba(22,163,74,.08);color:#14532d}
+.check-card.fail .check-msg{background:rgba(220,38,38,.08);color:#7f1d1d}
+.scenario-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.sc-badge{width:44px;height:44px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ip-notice{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:#1e40af;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 {% endblock %}
 {% block content %}
 <div class="page">
-  <div class="prog">
-    <div class="ps done">1 — Scenario</div>
+  <div class="progress-steps">
+    <div class="ps done">1 — Scenario Selected</div>
     <div class="ps active">2 — ZTA Checks</div>
     <div class="ps">3 — AI Analysis</div>
     <div class="ps">4 — Decision</div>
   </div>
-  <div class="banner">
-    <div class="b-icon">{{ scenario.icon }}</div>
-    <div><div class="b-title">{{ scenario.label }}</div><div class="b-desc">{{ scenario.description }}</div></div>
-  </div>
-  <div class="lbl">Zero Trust Architecture — all 4 checks must pass (Never trust, always verify)</div>
-  <div class="checks">
-    <div class="cc" id="cc-identity">
-      <div class="cc-icon">👤</div>
-      <div class="cc-name">Check 1 — Identity Verification</div>
-      <div class="cc-desc">Validates username and password against trusted user directory</div>
-      <span class="pill pw" id="cp-identity">⏳ Waiting</span>
-      <div class="cc-msg" id="cm-identity"></div>
+
+  <div class="scenario-banner">
+    <div class="sc-badge" style="background:var(--blue-light)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     </div>
-    <div class="cc" id="cc-role">
-      <div class="cc-icon">🔒</div>
-      <div class="cc-name">Check 2 — Role and Privilege</div>
-      <div class="cc-desc">Verifies the user has an assigned role — enforces least-privilege access</div>
-      <span class="pill pw" id="cp-role">⏳ Waiting</span>
-      <div class="cc-msg" id="cm-role"></div>
-    </div>
-    <div class="cc" id="cc-device">
-      <div class="cc-icon">💻</div>
-      <div class="cc-name">Check 3 — Device Trust</div>
-      <div class="cc-desc">Checks if the device is a registered, managed device</div>
-      <span class="pill pw" id="cp-device">⏳ Waiting</span>
-      <div class="cc-msg" id="cm-device"></div>
-    </div>
-    <div class="cc" id="cc-location">
-      <div class="cc-icon">🌍</div>
-      <div class="cc-name">Check 4 — Location Verification</div>
-      <div class="cc-desc">Confirms the login originates from a trusted geographic region</div>
-      <span class="pill pw" id="cp-location">⏳ Waiting</span>
-      <div class="cc-msg" id="cm-location"></div>
+    <div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:3px">{{ scenario.label }}</div>
+      <div style="font-size:12px;color:var(--text3)">{{ scenario.desc }}</div>
     </div>
   </div>
+
+  <div class="ip-notice">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span><strong>Your real IP:</strong> {{ client_ip }} &nbsp;&mdash;&nbsp; <strong>Detected location:</strong> {{ real_location }}</span>
+  </div>
+
+  <div class="label">Zero Trust Architecture — 4 checks must ALL pass (Never trust, always verify)</div>
+
+  <div class="check-grid">
+    <div class="check-card" id="cc-identity">
+      <div class="check-head">
+        <div class="check-num">1</div>
+        <div>
+          <div class="check-name">Identity Verification</div>
+        </div>
+        <span class="pill pill-gray" id="cp-identity" style="margin-left:auto">Pending</span>
+      </div>
+      <div class="check-desc">Validates username and password against the trusted user directory. Unregistered users fail immediately.</div>
+      <div class="check-msg" id="cm-identity">Waiting to run check...</div>
+    </div>
+
+    <div class="check-card" id="cc-role">
+      <div class="check-head">
+        <div class="check-num">2</div>
+        <div><div class="check-name">Role and Privilege</div></div>
+        <span class="pill pill-gray" id="cp-role" style="margin-left:auto">Pending</span>
+      </div>
+      <div class="check-desc">Verifies the user has a valid assigned role and appropriate permissions. Enforces least-privilege access.</div>
+      <div class="check-msg" id="cm-role">Waiting to run check...</div>
+    </div>
+
+    <div class="check-card" id="cc-device">
+      <div class="check-head">
+        <div class="check-num">3</div>
+        <div><div class="check-name">Device Trust</div></div>
+        <span class="pill pill-gray" id="cp-device" style="margin-left:auto">Pending</span>
+      </div>
+      <div class="check-desc">Checks whether the device is registered in the managed device registry. Unknown devices are blocked.</div>
+      <div class="check-msg" id="cm-device">Waiting to run check...</div>
+    </div>
+
+    <div class="check-card" id="cc-location">
+      <div class="check-head">
+        <div class="check-num">4</div>
+        <div><div class="check-name">Location Verification</div></div>
+        <span class="pill pill-gray" id="cp-location" style="margin-left:auto">Pending</span>
+      </div>
+      <div class="check-desc">Confirms the login originates from an approved geographic region. Unusual locations are flagged.</div>
+      <div class="check-msg" id="cm-location">Waiting to run check...</div>
+    </div>
+  </div>
+
+  <div class="info-box info-blue" style="margin-bottom:14px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>Zero Trust operates on a <strong>fail-fast principle</strong> — if any single check fails, access is denied immediately without completing the remaining checks. All four checks must pass for ZTA clearance.</div>
+  </div>
+
   <div style="display:flex;gap:10px;align-items:center">
-    <button class="btn btn-p" id="run-btn" onclick="runZTA()">▶ Run ZTA Checks<span class="spinner" id="spin"></span></button>
-    <a href="/" class="btn btn-s">← Back to Home</a>
+    <button class="btn btn-primary" id="run-btn" onclick="runZTA()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Run ZTA Checks
+      <span class="spinner" id="spin"></span>
+    </button>
+    <a href="/" class="btn btn-outline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </a>
   </div>
+
   <div id="next-div" style="display:none;margin-top:12px">
-    <a href="/ai-analysis" class="btn btn-p">Continue to AI Analysis →</a>
+    <div class="info-box info-green" style="margin-bottom:10px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <div><strong>ZTA clearance granted.</strong> All four Zero Trust checks passed. Proceeding to AI behavioural analysis — the second layer of defence.</div>
+    </div>
+    <a href="/ai-analysis" class="btn btn-primary">
+      Continue to AI Analysis
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
   </div>
-  <div id="deny-div" style="display:none;margin-top:12px;background:#fde8e8;border:1px solid #fa383e;border-radius:10px;padding:14px">
-    <div style="font-size:13px;font-weight:600;color:#fa383e;margin-bottom:4px">⛔ Access Denied by ZTA</div>
-    <div style="font-size:12px;color:#1c1e21">One or more Zero Trust checks failed. This is Zero Trust in action — fail any single check and access is immediately blocked. Redirecting to decision page...</div>
+
+  <div id="deny-div" style="display:none;margin-top:12px">
+    <div class="info-box info-red">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <div><strong>ZTA check failed — access denied.</strong> A Zero Trust check was not satisfied. This is Zero Trust in action — any single failure results in immediate denial. Redirecting to decision page...</div>
+    </div>
   </div>
+
 </div>
+{% endblock %}
+{% block scripts %}
 <script>
 const SK = "{{ key }}";
 const delay = ms => new Promise(r => setTimeout(r, ms));
-function setPill(id, type, text) {
-  const el = document.getElementById('cp-' + id);
-  el.className = 'pill ' + type;
-  el.textContent = text;
-}
-function setCard(id, cls) { document.getElementById('cc-' + id).className = 'cc ' + cls; }
-function setMsg(id, text) { document.getElementById('cm-' + id).textContent = text; }
+
 async function runZTA() {
   document.getElementById('run-btn').disabled = true;
   document.getElementById('spin').classList.add('show');
+
   const checks = ['identity','role','device','location'];
-  for (const c of checks) { setCard(c,'checking'); setPill(c,'pc','🔄 Checking...'); }
-  const resp = await fetch('/api/run-zta', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({scenario_key: SK}) });
+  for (const c of checks) {
+    document.getElementById('cc-'+c).className = 'check-card checking';
+    document.getElementById('cp-'+c).className = 'pill pill-blue';
+    document.getElementById('cp-'+c).textContent = 'Checking...';
+  }
+
+  const resp = await fetch('/api/run-zta', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({scenario_key: SK})
+  });
   const data = await resp.json();
   document.getElementById('spin').classList.remove('show');
-  const map = { identity: data.checks.identity, role: data.checks.role, device: data.checks.device, location: data.checks.location };
+
+  const map = {identity: data.checks.identity, role: data.checks.role, device: data.checks.device, location: data.checks.location};
+
   for (const [key, val] of Object.entries(map)) {
-    await delay(450);
-    setCard(key, val.passed ? 'pass' : 'fail');
-    setPill(key, val.passed ? 'pp' : 'pf', val.passed ? '✔ PASS' : '✘ FAIL');
-    setMsg(key, val.message);
+    await delay(500);
+    const cls = val.passed ? 'pass' : 'fail';
+    document.getElementById('cc-'+key).className = 'check-card '+cls;
+    document.getElementById('cp-'+key).className = 'pill '+(val.passed ? 'pill-green' : 'pill-red');
+    document.getElementById('cp-'+key).textContent = val.passed ? 'Pass' : 'Fail';
+    document.getElementById('cm-'+key).textContent = val.message;
   }
+
   await delay(400);
-  if (data.passed) { document.getElementById('next-div').style.display = 'block'; }
-  else { document.getElementById('deny-div').style.display = 'block'; setTimeout(() => { window.location.href = '/ai-analysis'; }, 3000); }
+  if (data.passed) {
+    document.getElementById('next-div').style.display = 'block';
+  } else {
+    document.getElementById('deny-div').style.display = 'block';
+    setTimeout(() => { window.location.href = '/ai-analysis'; }, 3000);
+  }
 }
 </script>
 {% endblock %}

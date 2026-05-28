@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Trusted Users{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">Trusted User Directory</div>
+    <div class="page-sub">All users registered in the ZTA trusted directory — only these users can pass identity checks</div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+    <a href="/register" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Register New User
+    </a>
+  </div>
+  <div class="card">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Registered Users ({{ users|length }})
+    </div>
+    <table>
+      <thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Device</th><th>Location</th><th>Registered</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td style="font-weight:600;font-family:monospace">{{ u.username }}</td>
+          <td>{{ u.full_name or '—' }}</td>
+          <td><span class="pill pill-blue">{{ u.role.title() }}</span></td>
+          <td style="font-size:12px;color:var(--text2)">{{ u.device.replace('_',' ').title() }}</td>
+          <td style="font-size:12px;color:var(--text2)">{{ u.location }}</td>
+          <td style="font-size:11px;color:var(--text3)">{{ u.created_at[:10] if u.created_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="info-box info-blue" style="margin-top:14px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>Only users listed here can pass ZTA Check 1 (Identity Verification). Any login attempt with an unregistered username is immediately denied — this is the Zero Trust principle of explicit verification applied to the user directory.</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

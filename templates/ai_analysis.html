@@ -1,113 +1,224 @@
 {% extends "base.html" %}
-{% block title %}AI Analysis — ZTA + AI Security{% endblock %}
+{% block title %}AI Analysis{% endblock %}
 {% block extra_style %}
-.prog{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
-.ps{flex:1;padding:11px;text-align:center;font-size:10px;font-weight:600;color:#65676b;border-right:1px solid #dddfe2}
-.ps:last-child{border-right:none}.ps.active{background:#1877f2;color:#fff}.ps.done{background:#e7f3ec;color:#31a24c}
-.feat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
-.feat{background:#f0f2f5;border:1px solid #dddfe2;border-radius:8px;padding:12px 8px;text-align:center;transition:background .3s,border-color .3s}
-.feat.active{background:#dbeafe;border-color:#1877f2}
-.feat-i{font-size:18px;margin-bottom:5px}.feat-n{font-size:9px;color:#65676b;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}.feat-v{font-size:12px;font-weight:700;color:#1c1e21}
-.feat-v.d{color:#fa383e}.feat-v.w{color:#f0a500}.feat-v.s{color:#31a24c}
-.log-box{background:#f0f2f5;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;color:#1c1e21;line-height:1.8;min-height:80px;margin-bottom:14px}
-.score-area{display:none;text-align:center;padding:14px 0}
-.score-big{font-size:56px;font-weight:700;line-height:1}
-.score-lbl{font-size:15px;font-weight:600;margin-top:5px}
-.sc-low{color:#31a24c}.sc-med{color:#f0a500}.sc-high{color:#fa383e}
-.bar-bg{background:#e4e6eb;border-radius:6px;height:12px;overflow:hidden;margin:10px 0}
-.bar-fill{height:100%;border-radius:6px;transition:width 1s ease}
-.fill-g{background:#31a24c}.fill-a{background:#f0a500}.fill-r{background:#fa383e}
-.legend{display:flex;gap:14px;font-size:10px;color:#65676b;justify-content:center}
-.spinner{display:none;width:14px;height:14px;border:2px solid #dddfe2;border-top-color:#1877f2;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:6px}
-.spinner.show{display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
+.feat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.feat{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;transition:all .3s}
+.feat.active{background:var(--blue-light);border-color:var(--blue)}
+.feat.safe{background:var(--green-light);border-color:var(--green)}
+.feat.warn{background:var(--amber-light);border-color:var(--amber)}
+.feat.danger{background:var(--red-light);border-color:var(--red)}
+.feat-icon{width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.feat-name{font-size:9px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--text3);margin-bottom:4px}
+.feat-val{font-size:12px;font-weight:700;color:var(--text)}
+.feat-note{font-size:10px;color:var(--text3);margin-top:2px}
+.feat.safe .feat-val{color:var(--green)}.feat.warn .feat-val{color:var(--amber)}.feat.danger .feat-val{color:var(--red)}
+.log-terminal{background:#0f172a;border-radius:var(--radius-sm);padding:14px;font-family:'Courier New',monospace;font-size:11px;color:#94a3b8;line-height:1.8;min-height:80px;margin-bottom:14px}
+.log-terminal .cmd{color:#38bdf8}
+.log-terminal .ok{color:#4ade80}
+.log-terminal .warn{color:#fbbf24}
+.log-terminal .err{color:#f87171}
+.score-display{display:none;text-align:center;padding:16px 0}
+.score-num{font-size:64px;font-weight:700;line-height:1}
+.score-label{font-size:14px;font-weight:600;margin-top:6px}
+.score-desc{font-size:12px;color:var(--text3);margin-top:4px}
+.score-low{color:var(--green)}.score-med{color:var(--amber)}.score-high{color:var(--red)}
+.bar-bg2{background:var(--surface2);border-radius:6px;height:14px;overflow:hidden;margin:12px 0}
+.bar-fill2{height:100%;border-radius:6px;transition:width 1s ease}
+.legend{display:flex;gap:16px;font-size:11px;color:var(--text3);justify-content:center;margin-top:6px}
+.leg-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
 {% endblock %}
 {% block content %}
 <div class="page">
-  <div class="prog">
-    <div class="ps done">1 — Scenario</div>
+  <div class="progress-steps">
+    <div class="ps done">1 — Scenario Selected</div>
     <div class="ps done">2 — ZTA Checks</div>
     <div class="ps active">3 — AI Analysis</div>
     <div class="ps">4 — Decision</div>
   </div>
-  <div class="card">
-    <div style="font-size:15px;font-weight:700;margin-bottom:4px">🤖 AI Anomaly Detector — Isolation Forest Algorithm</div>
-    <div style="font-size:12px;color:#65676b;margin-bottom:16px">The AI analyses 5 behavioural features of this login and compares them against 20 normal login patterns it was trained on. Any unusual pattern raises the risk score from 0 to 100.</div>
-    <div class="lbl">Features being analysed</div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      AI Anomaly Detector — Isolation Forest Algorithm
+    </div>
+
+    <div class="info-box info-blue" style="margin-bottom:14px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>The AI model was trained on <strong>20 normal login patterns</strong>. It analyses 5 behavioural features of this login and compares them against those patterns using the <strong>Isolation Forest</strong> algorithm. Anomalies are isolated faster — the higher the isolation speed, the higher the risk score.</div>
+    </div>
+
+    <div class="label">5 Behavioural features being analysed</div>
     <div class="feat-grid">
-      <div class="feat" id="f-att"><div class="feat-i">🔁</div><div class="feat-n">Attempts Today</div><div class="feat-v" id="fv-att">—</div></div>
-      <div class="feat" id="f-hr"><div class="feat-i">🕐</div><div class="feat-n">Hour of Day</div><div class="feat-v" id="fv-hr">—</div></div>
-      <div class="feat" id="f-dev"><div class="feat-i">💻</div><div class="feat-n">Device Trust</div><div class="feat-v" id="fv-dev">—</div></div>
-      <div class="feat" id="f-loc"><div class="feat-i">🌍</div><div class="feat-n">Location Trust</div><div class="feat-v" id="fv-loc">—</div></div>
-      <div class="feat" id="f-spd"><div class="feat-i">⚡</div><div class="feat-n">Login Speed</div><div class="feat-v" id="fv-spd">—</div></div>
+      <div class="feat" id="f-att">
+        <div class="feat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="feat-name">Attempts</div>
+        <div class="feat-val" id="fv-att">—</div>
+        <div class="feat-note" id="fn-att">Pending</div>
+      </div>
+      <div class="feat" id="f-hr">
+        <div class="feat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="feat-name">Time</div>
+        <div class="feat-val" id="fv-hr">—</div>
+        <div class="feat-note" id="fn-hr">Pending</div>
+      </div>
+      <div class="feat" id="f-dev">
+        <div class="feat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <div class="feat-name">Device</div>
+        <div class="feat-val" id="fv-dev">—</div>
+        <div class="feat-note" id="fn-dev">Pending</div>
+      </div>
+      <div class="feat" id="f-loc">
+        <div class="feat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="feat-name">Location</div>
+        <div class="feat-val" id="fv-loc">—</div>
+        <div class="feat-note" id="fn-loc">Pending</div>
+      </div>
+      <div class="feat" id="f-spd">
+        <div class="feat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div class="feat-name">Speed</div>
+        <div class="feat-val" id="fv-spd">—</div>
+        <div class="feat-note" id="fn-spd">Pending</div>
+      </div>
     </div>
-    <div class="lbl">AI analysis log</div>
-    <div class="log-box" id="log-box">Waiting to start AI analysis...</div>
-    <div class="score-area" id="score-area">
-      <div class="score-big" id="score-num">0</div>
-      <div class="score-lbl" id="score-lbl">Calculating...</div>
-      <div class="bar-bg"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
-      <div class="legend"><span>🟢 Low (0–30) — Normal</span><span>🟡 Medium (31–69) — Suspicious</span><span>🔴 High (70–100) — Block</span></div>
+
+    <div class="label">Analysis log</div>
+    <div class="log-terminal" id="log-box"><span class="cmd">$</span> Waiting to initialise AI analysis...</div>
+
+    <div class="score-display" id="score-area">
+      <div class="score-num" id="score-num">0</div>
+      <div class="score-label" id="score-label">Calculating...</div>
+      <div class="score-desc" id="score-desc"></div>
+      <div class="bar-bg2"><div class="bar-fill2" id="bar-fill" style="width:0%"></div></div>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:var(--green)"></span>Low (0–29)</span>
+        <span><span class="leg-dot" style="background:var(--amber)"></span>Medium (30–69)</span>
+        <span><span class="leg-dot" style="background:var(--red)"></span>High (70–100)</span>
+      </div>
     </div>
+
     <div style="display:flex;gap:10px;align-items:center;margin-top:14px">
-      <button class="btn btn-p" id="ai-btn" onclick="runAI()">▶ Run AI Analysis<span class="spinner" id="spin"></span></button>
-      <a href="/" class="btn btn-s">← Back to Home</a>
+      <button class="btn btn-primary" id="ai-btn" onclick="runAI()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Run AI Analysis
+        <span class="spinner" id="spin"></span>
+      </button>
+      <a href="/" class="btn btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back</a>
     </div>
     <div id="next-div" style="display:none;margin-top:12px"></div>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
 <script>
 const SK = "{{ key }}";
-const sc = { attempts: {{ scenario.attempts_today }}, hour: {{ scenario.hour_of_day }}, device: "{{ scenario.device }}", location: "{{ scenario.location }}", speed: {{ scenario.login_speed }} };
-const TD = ['managed_laptop','company_phone','office_desktop','managed_tablet'];
-const TL = ['London, UK','Manchester, UK','Birmingham, UK','Edinburgh, UK','Bristol, UK'];
+const sc = {attempts:{{ scenario.attempts }},hour:{{ scenario.hour }},device:"{{ scenario.device }}",location:"{{ scenario.location }}",speed:{{ scenario.speed }}};
+const TD = ['managed_laptop','company_phone','office_desktop','managed_tablet','corporate_workstation'];
+const TL = ['London, UK','Manchester, UK','Birmingham, UK','Edinburgh, UK','Bristol, UK','Leeds, UK','Sheffield, UK'];
 const delay = ms => new Promise(r => setTimeout(r, ms));
-function addLog(msg) { const el = document.getElementById('log-box'); el.innerHTML = (el.innerHTML === 'Waiting to start AI analysis...' ? '' : el.innerHTML + '\n') + '> ' + msg; }
-async function revealFeat(id, valId, label, cls) {
-  document.getElementById('f-'+id).classList.add('active'); await delay(550);
-  document.getElementById(valId).textContent = label;
-  document.getElementById(valId).className = 'feat-v ' + cls;
-  document.getElementById('f-'+id).classList.remove('active');
+
+function addLog(text, cls='') {
+  const el = document.getElementById('log-box');
+  const line = `<div><span class="cmd">$</span> <span class="${cls}">${text}</span></div>`;
+  if (el.innerHTML.includes('Waiting')) el.innerHTML = '';
+  el.innerHTML += line;
+  el.scrollTop = el.scrollHeight;
 }
+
+async function revealFeat(id, valId, noteId, val, note, cls) {
+  const box = document.getElementById('f-'+id);
+  box.className = 'feat active'; await delay(500);
+  document.getElementById(valId).textContent = val;
+  document.getElementById(noteId).textContent = note;
+  box.className = 'feat '+cls;
+}
+
 async function runAI() {
   document.getElementById('ai-btn').disabled = true;
   document.getElementById('spin').classList.add('show');
-  document.getElementById('log-box').innerHTML = '> Initialising Isolation Forest model...';
-  await delay(600); addLog('> Loading 20 normal login training patterns...');
-  await delay(500); addLog('> Model ready — analysing login features...');
-  await delay(400);
-  addLog('> Feature 1: Attempts today = ' + sc.attempts);
-  await revealFeat('att','fv-att', sc.attempts + 'x', sc.attempts > 5 ? 'd' : sc.attempts > 2 ? 'w' : 's');
-  addLog('> Feature 2: Hour of day = ' + sc.hour + ':00');
-  await revealFeat('hr','fv-hr', sc.hour + ':00', (sc.hour < 6 || sc.hour > 22) ? 'd' : 's');
-  const dt = TD.includes(sc.device);
-  addLog('> Feature 3: Device = ' + sc.device + ' (' + (dt ? 'trusted' : 'UNTRUSTED') + ')');
-  await revealFeat('dev','fv-dev', dt ? 'Trusted' : 'Untrusted', dt ? 's' : 'd');
-  const lt = TL.includes(sc.location);
-  addLog('> Feature 4: Location = ' + sc.location + ' (' + (lt ? 'trusted' : 'UNTRUSTED') + ')');
-  await revealFeat('loc','fv-loc', lt ? 'Trusted' : 'Untrusted', lt ? 's' : 'd');
-  addLog('> Feature 5: Login speed = ' + sc.speed + 's between attempts');
-  await revealFeat('spd','fv-spd', sc.speed + 's', sc.speed < 3 ? 'd' : sc.speed < 15 ? 'w' : 's');
-  addLog('> Running Isolation Forest anomaly scoring...');
-  await delay(700);
-  const resp = await fetch('/api/run-ai', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({scenario_key: SK}) });
-  const data = await resp.json();
+  document.getElementById('log-box').innerHTML = '';
+  addLog('Initialising Isolation Forest model (100 estimators, contamination=0.1)...');
+  await delay(700); addLog('Loading 20 normal login training patterns...', 'ok');
+  await delay(600); addLog('Fitting StandardScaler to training data...', 'ok');
+  await delay(400); addLog('Model ready. Beginning feature extraction...', 'ok');
+
+  const dt = TD.includes(sc.device), lt = TL.includes(sc.location);
+
+  addLog(`Feature 1 — Attempts today: ${sc.attempts}`);
+  await revealFeat('att','fv-att','fn-att', sc.attempts+'×',
+    sc.attempts>5?'Excessive — suspicious':sc.attempts>2?'Slightly elevated':'Within normal range',
+    sc.attempts>5?'danger':sc.attempts>2?'warn':'safe');
+
+  addLog(`Feature 2 — Hour of login: ${String(sc.hour).padStart(2,'0')}:00`);
+  await revealFeat('hr','fv-hr','fn-hr', `${String(sc.hour).padStart(2,'0')}:00`,
+    (sc.hour<6||sc.hour>22)?'Outside working hours':'Normal working hours',
+    (sc.hour<6||sc.hour>22)?'warn':'safe');
+
+  addLog(`Feature 3 — Device: ${sc.device} (${dt?'TRUSTED':'UNTRUSTED'})`);
+  await revealFeat('dev','fv-dev','fn-dev', dt?'Trusted':'Untrusted',
+    dt?'Registered managed device':'Not in device registry',
+    dt?'safe':'danger');
+
+  addLog(`Feature 4 — Location: ${sc.location} (${lt?'TRUSTED':'UNTRUSTED'})`);
+  await revealFeat('loc','fv-loc','fn-loc', lt?'Trusted':'Untrusted',
+    lt?'Approved region':'Outside approved regions',
+    lt?'safe':'danger');
+
+  addLog(`Feature 5 — Login speed: ${sc.speed}s between attempts`);
+  await revealFeat('spd','fv-spd','fn-spd', sc.speed+'s',
+    sc.speed<3?'Automated bot speed':sc.speed<15?'Fast — possible script':'Normal human typing',
+    sc.speed<3?'danger':sc.speed<15?'warn':'safe');
+
+  addLog('Running Isolation Forest anomaly scoring on feature vector...');
+  await delay(800);
+
+  let data;
+  try {
+    // Try main route first
+    let resp = await fetch('/api/run-ai', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({scenario_key: SK})
+    });
+    // If session lost, try direct route as fallback
+    if (!resp.ok) {
+      addLog('Session expired — using direct route...', 'warn');
+      resp = await fetch('/api/run-ai-direct/' + SK);
+    }
+    if (!resp.ok) throw new Error('Server returned error ' + resp.status);
+    data = await resp.json();
+    if (!data || data.risk_score === undefined) throw new Error('Invalid server response — please try again');
+  } catch(err) {
+    document.getElementById('spin').classList.remove('show');
+    document.getElementById('ai-btn').disabled = false;
+    addLog('ERROR: ' + err.message, 'err');
+    addLog('Go back to home page and click the scenario again.', 'warn');
+    return;
+  }
   document.getElementById('spin').classList.remove('show');
-  const score = data.risk_score; const label = data.risk_label;
-  addLog('> Analysis complete. Risk score: ' + score + ' — ' + label);
+
+  const score = data.risk_score, label = data.risk_label;
+  const isHigh = score >= 70, isMed = score >= 30;
+  addLog(`Analysis complete. Risk score: ${score} — ${label}`, isHigh?'err':isMed?'warn':'ok');
+
   document.getElementById('score-area').style.display = 'block';
-  const cls = score < 30 ? 'sc-low' : score < 70 ? 'sc-med' : 'sc-high';
-  const fcls = score < 30 ? 'fill-g' : score < 70 ? 'fill-a' : 'fill-r';
+  const scls = isHigh?'score-high':isMed?'score-med':'score-low';
+  const fcls = isHigh?'fill-red':isMed?'fill-amber':'fill-green';
   document.getElementById('score-num').textContent = score;
-  document.getElementById('score-num').className = 'score-big ' + cls;
-  document.getElementById('score-lbl').textContent = label + ' RISK';
-  document.getElementById('score-lbl').className = 'score-lbl ' + cls;
-  setTimeout(() => { const bar = document.getElementById('bar-fill'); bar.className = 'bar-fill ' + fcls; bar.style.width = score + '%'; }, 200);
-  const nd = document.getElementById('next-div'); nd.style.display = 'block';
+  document.getElementById('score-num').className = 'score-num '+scls;
+  document.getElementById('score-label').textContent = label+' RISK';
+  document.getElementById('score-label').className = 'score-label '+scls;
+  document.getElementById('score-desc').textContent = data.description;
+  setTimeout(()=>{
+    const bar = document.getElementById('bar-fill');
+    bar.className = 'bar-fill2 '+(isHigh?'fill-red':isMed?'fill-amber':'fill-green');
+    bar.style.width = score+'%';
+  }, 200);
+
+  const nd = document.getElementById('next-div');
+  nd.style.display = 'block';
   if (score >= 50 && score < 70) {
-    nd.innerHTML = '<a href="/step-up" class="btn btn-w">⚠️ Proceed to Step-Up Authentication →</a>';
+    nd.innerHTML = `<div class="info-box info-amber" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Medium risk detected.</strong> The AI has flagged this login as suspicious. Step-up authentication is required before access can be granted.</div></div><a href="/step-up" class="btn" style="background:var(--amber);color:#fff;border-color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Proceed to Step-Up Authentication</a>`;
   } else {
-    nd.innerHTML = '<a href="/decision" class="btn btn-p">View Final Decision →</a>';
+    nd.innerHTML = `<a href="/decision" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>View Final Decision</a>`;
   }
 }
 </script>

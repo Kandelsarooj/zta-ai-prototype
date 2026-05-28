@@ -1,7 +1,6 @@
-
 services:
   - type: web
     name: zta-ai-prototype
     runtime: python
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app

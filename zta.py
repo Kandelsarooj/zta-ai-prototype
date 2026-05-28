@@ -1,84 +1,94 @@
-# zta.py
-# Author: Saroj Kandel — MSc Software Engineering, UWL
-# Purpose: Zero Trust Architecture access control — 4 checks, all must pass
+# zta.py — Zero Trust Architecture Engine
+# Saroj Kandel, MSc Software Engineering, UWL
+# Based on NIST SP 800-207 Zero Trust Architecture
 
-TRUSTED_USERS = {
-    'alice': {'password': 'alice123', 'role': 'analyst',   'email': 'alice@company.com'},
-    'bob':   {'password': 'bob123',   'role': 'developer', 'email': 'bob@company.com'},
-    'carol': {'password': 'carol123', 'role': 'admin',     'email': 'carol@company.com'},
-    'dave':  {'password': 'dave123',  'role': 'analyst',   'email': 'dave@company.com'},
-}
+TRUSTED_DEVICES = [
+    'managed_laptop', 'company_phone', 'office_desktop',
+    'managed_tablet', 'corporate_workstation'
+]
 
-TRUSTED_DEVICES = ['managed_laptop','company_phone','office_desktop','managed_tablet']
-
-TRUSTED_LOCATIONS = ['London, UK','Manchester, UK','Birmingham, UK','Edinburgh, UK','Bristol, UK']
+TRUSTED_LOCATIONS = [
+    'London, UK', 'Manchester, UK', 'Birmingham, UK',
+    'Edinburgh, UK', 'Bristol, UK', 'Leeds, UK', 'Sheffield, UK'
+]
 
 ROLE_PERMISSIONS = {
-    'analyst':   ['read_reports','view_dashboard'],
-    'developer': ['read_reports','view_dashboard','access_dev_tools'],
-    'admin':     ['read_reports','view_dashboard','access_dev_tools','manage_users','system_settings']
+    'analyst':   ['view_dashboard', 'read_reports', 'view_alerts'],
+    'developer': ['view_dashboard', 'read_reports', 'view_alerts', 'access_dev_tools', 'view_logs'],
+    'admin':     ['view_dashboard', 'read_reports', 'view_alerts', 'access_dev_tools',
+                  'view_logs', 'manage_users', 'system_settings', 'download_files', 'edit_data'],
+    'viewer':    ['view_dashboard']
 }
 
-def check_identity(username, password):
-    if username not in TRUSTED_USERS:
-        return False, "Unknown user — not in trusted directory"
-    if TRUSTED_USERS[username]['password'] != password:
-        return False, "Incorrect password — identity not verified"
-    return True, "Identity verified successfully"
+def check_identity(username, password, user_data):
+    """Check 1 — Verify identity against user directory"""
+    if not user_data:
+        return False, "Identity verification failed — user not found in trusted directory", None
+    from database import hash_password
+    if user_data['password_hash'] != hash_password(password):
+        return False, "Identity verification failed — incorrect credentials provided", None
+    return True, f"Identity verified — welcome {user_data.get('full_name', username)}", user_data['role']
 
-def check_role(username):
-    if username not in TRUSTED_USERS:
-        return False, None, "No role assigned — user unknown"
-    role = TRUSTED_USERS[username]['role']
-    if role not in ROLE_PERMISSIONS:
-        return False, role, "Role not recognised in permission system"
-    return True, role, f"Role verified: {role}"
+def check_role(role):
+    """Check 2 — Verify role and permissions"""
+    if not role or role not in ROLE_PERMISSIONS:
+        return False, "Role verification failed — no valid role assigned to this account"
+    perms = ROLE_PERMISSIONS[role]
+    return True, f"Role verified — {role.title()} with {len(perms)} permission(s) assigned"
 
 def check_device(device):
+    """Check 3 — Verify device against managed device registry"""
     if device in TRUSTED_DEVICES:
-        return True, "Device is trusted and managed"
-    return False, f"Untrusted device: {device} — not in managed device registry"
+        return True, f"Device verified — '{device}' is a registered managed device"
+    return False, f"Device check failed — '{device}' is not in the managed device registry"
 
 def check_location(location):
+    """Check 4 — Verify geographic location"""
     if location in TRUSTED_LOCATIONS:
-        return True, "Location is within trusted region"
-    return False, f"Untrusted location: {location} — outside approved regions"
+        return True, f"Location verified — '{location}' is within the approved geographic region"
+    return False, f"Location check failed — '{location}' is outside approved regions"
 
-def run_zta_checks(username, password, device, location):
+def run_zta_checks(username, password, device, location, user_data=None):
     results = {
         'passed': False, 'role': None, 'message': '',
         'checks': {
-            'identity': {'passed': False, 'message': ''},
-            'role':     {'passed': False, 'message': ''},
-            'device':   {'passed': False, 'message': ''},
-            'location': {'passed': False, 'message': ''}
+            'identity': {'passed': False, 'message': '', 'icon': 'user'},
+            'role':     {'passed': False, 'message': '', 'icon': 'shield'},
+            'device':   {'passed': False, 'message': '', 'icon': 'monitor'},
+            'location': {'passed': False, 'message': '', 'icon': 'map-pin'}
         }
     }
-    id_ok, id_msg = check_identity(username, password)
-    results['checks']['identity'] = {'passed': id_ok, 'message': id_msg}
-    if not id_ok:
-        results['message'] = f"ZTA DENIED — Identity check failed: {id_msg}"
+
+    # Check 1 — Identity
+    ok, msg, role = check_identity(username, password, user_data)
+    results['checks']['identity'] = {'passed': ok, 'message': msg, 'icon': 'user'}
+    if not ok:
+        results['message'] = msg
         return results
 
-    role_ok, role, role_msg = check_role(username)
-    results['checks']['role'] = {'passed': role_ok, 'message': role_msg}
-    if not role_ok:
-        results['message'] = f"ZTA DENIED — Role check failed: {role_msg}"
+    # Check 2 — Role
+    ok2, msg2 = check_role(role)
+    results['checks']['role'] = {'passed': ok2, 'message': msg2, 'icon': 'shield'}
+    if not ok2:
+        results['message'] = msg2
         return results
 
-    dev_ok, dev_msg = check_device(device)
-    results['checks']['device'] = {'passed': dev_ok, 'message': dev_msg}
-    if not dev_ok:
-        results['message'] = f"ZTA DENIED — Device check failed: {dev_msg}"
+    # Check 3 — Device
+    ok3, msg3 = check_device(device)
+    results['checks']['device'] = {'passed': ok3, 'message': msg3, 'icon': 'monitor'}
+    if not ok3:
+        results['message'] = msg3
         return results
 
-    loc_ok, loc_msg = check_location(location)
-    results['checks']['location'] = {'passed': loc_ok, 'message': loc_msg}
-    if not loc_ok:
-        results['message'] = f"ZTA DENIED — Location check failed: {loc_msg}"
+    # Check 4 — Location
+    ok4, msg4 = check_location(location)
+    results['checks']['location'] = {'passed': ok4, 'message': msg4, 'icon': 'map-pin'}
+    if not ok4:
+        results['message'] = msg4
         return results
 
-    results['passed']  = True
-    results['role']    = role
-    results['message'] = f"ZTA PASSED — All 4 checks verified for {username}"
+    results['passed'] = True
+    results['role'] = role
+    results['permissions'] = ROLE_PERMISSIONS.get(role, [])
+    results['message'] = f"All Zero Trust checks passed — access pipeline initiated for {username}"
     return results

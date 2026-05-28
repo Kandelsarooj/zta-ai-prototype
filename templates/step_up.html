@@ -1,75 +1,98 @@
 {% extends "base.html" %}
 {% block title %}Step-Up Authentication{% endblock %}
-{% block extra_style %}
-.prog{display:flex;background:#fff;border:1px solid #dddfe2;border-radius:10px;overflow:hidden;margin-bottom:20px}
-.ps{flex:1;padding:11px;text-align:center;font-size:10px;font-weight:600;color:#65676b;border-right:1px solid #dddfe2}
-.ps:last-child{border-right:none}.ps.active{background:#f0a500;color:#fff}.ps.done{background:#e7f3ec;color:#31a24c}
-.warn-banner{background:linear-gradient(135deg,#f0a500,#d4840a);border-radius:12px;padding:22px 26px;margin-bottom:20px;color:#fff;display:flex;align-items:center;gap:16px}
-.wb-icon{font-size:40px}.wb-title{font-size:18px;font-weight:700;margin-bottom:5px}.wb-sub{font-size:12px;opacity:.88;line-height:1.5}
-.su-card{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:22px;max-width:540px;margin:0 auto}
-.score-box{background:#fef3e2;border:1px solid #f0a500;border-radius:8px;padding:14px;text-align:center;margin-bottom:18px}
-.score-n{font-size:44px;font-weight:700;color:#f0a500}.score-l{font-size:13px;color:#b45309;margin-top:3px}
-.bar-bg{background:#e4e6eb;border-radius:6px;height:10px;overflow:hidden;margin:8px 0}
-.bar-fill{height:100%;background:#f0a500;border-radius:6px}
-.q-label{font-size:13px;font-weight:600;margin-bottom:8px}
-.q-box{background:#f0f2f5;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:500;margin-bottom:12px}
-.q-input{width:100%;padding:10px 12px;border:1.5px solid #dddfe2;border-radius:8px;font-size:13px;outline:none;transition:border-color .2s;font-family:Arial,sans-serif}
-.q-input:focus{border-color:#1877f2}
-.info-box{background:#f0f2f5;border-radius:8px;padding:12px;margin-top:14px;font-size:11px;color:#65676b;line-height:1.7}
-{% endblock %}
 {% block content %}
 <div class="page">
-  <div class="prog">
+  <div class="progress-steps">
     <div class="ps done">1 — Scenario</div>
     <div class="ps done">2 — ZTA Checks</div>
     <div class="ps done">3 — AI Analysis</div>
-    <div class="ps active">3b — Step-Up</div>
+    <div class="ps warn">3b — Step-Up</div>
     <div class="ps">4 — Decision</div>
   </div>
-  <div class="warn-banner">
-    <div class="wb-icon">⚠️</div>
-    <div>
-      <div class="wb-title">Unusual Activity — Step-Up Authentication Required</div>
-      <div class="wb-sub">The AI detected suspicious behaviour for this login. Before access is granted, you must answer an additional security question. This is Zero Trust in action — continuous verification based on real-time risk assessment.</div>
+
+  <div style="max-width:540px;margin:0 auto">
+
+    <div class="info-box info-amber" style="margin-bottom:16px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div>
+        <strong>Unusual Activity Detected — Step-Up Authentication Required</strong><br>
+        The AI detected suspicious behaviour for this login. Before access is granted, you must verify your identity with an additional security challenge. This is triggered automatically when the AI risk score falls between 50 and 69.
+      </div>
     </div>
-  </div>
-  <div class="su-card">
-    <div class="score-box">
-      <div class="score-n">{{ ai_score }}</div>
-      <div class="score-l">AI Risk Score — MEDIUM — Step-up triggered (threshold: 50+)</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:{{ ai_score }}%"></div></div>
-    </div>
-    <div class="q-label">🔐 Security Question</div>
-    <div class="q-box">{{ question }}</div>
-    <input class="q-input" type="text" id="answer" placeholder="Type your answer here..." autocomplete="off" onkeypress="if(event.key==='Enter')verify()"/>
-    <div style="display:flex;gap:10px;margin-top:12px">
-      <button class="btn btn-w" onclick="verify()">✔ Verify My Identity</button>
-      <a href="/" class="btn btn-s">✕ Cancel</a>
-    </div>
-    <div id="result" style="display:none;margin-top:12px;padding:12px;border-radius:8px;font-size:12px;font-weight:500"></div>
-    <div class="info-box">
-      <strong>What is Step-Up Authentication?</strong><br>
-      Step-up authentication is an additional verification layer triggered automatically when the AI detects suspicious behaviour. Even if the standard ZTA checks passed, unusual patterns — like logging in at 2am — trigger this extra challenge. This implements the Zero Trust principle of continuous verification based on dynamic risk assessment.
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Step-Up Authentication Challenge
+      </div>
+
+      <!-- Score indicator -->
+      <div style="background:var(--amber-light);border:1px solid #fde68a;border-radius:var(--radius-sm);padding:14px;text-align:center;margin-bottom:16px">
+        <div style="font-size:40px;font-weight:700;color:var(--amber)">{{ ai_score }}</div>
+        <div style="font-size:12px;color:#78350f;margin-top:4px">AI Risk Score — MEDIUM — Step-up threshold: 50+</div>
+        <div style="background:#fde68a;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
+          <div style="height:100%;background:var(--amber);border-radius:4px;width:{{ ai_score }}%"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Security Question</label>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">
+          {{ question }}
+        </div>
+        <input type="text" id="su-answer" placeholder="Type your answer here..." autocomplete="off" onkeypress="if(event.key==='Enter')verify()">
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn" style="background:var(--amber);color:#fff;border-color:var(--amber)" onclick="verify()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+          Verify Identity
+          <span class="spinner" id="spin"></span>
+        </button>
+        <a href="/" class="btn btn-outline">Cancel</a>
+      </div>
+
+      <div id="result-ok" style="display:none;margin-top:12px">
+        <div class="info-box info-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <div><strong>Verified successfully.</strong> Because your AI risk score is medium, you will receive limited read-only access. Redirecting to decision...</div>
+        </div>
+      </div>
+
+      <div id="result-fail" style="display:none;margin-top:12px">
+        <div class="info-box info-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <div><strong>Verification failed.</strong> Incorrect answer. Because the AI flagged this login as suspicious, access has been denied. Redirecting...</div>
+        </div>
+      </div>
+
+      <div class="info-box info-blue" style="margin-top:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div><strong>What is step-up authentication?</strong> It is an additional verification layer triggered dynamically when AI detects suspicious behaviour. Unlike standard login (password only), step-up requires further proof of identity. This implements the Zero Trust principle — <em>never trust, always verify</em> — applied in real time based on risk.</div>
+      </div>
     </div>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
 <script>
+document.getElementById('su-answer').focus();
 async function verify() {
-  const ans = document.getElementById('answer').value.trim();
-  if (!ans) { document.getElementById('answer').style.borderColor='#fa383e'; return; }
-  const resp = await fetch('/api/verify-stepup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({answer: ans}) });
+  const ans = document.getElementById('su-answer').value.trim();
+  if (!ans) { document.getElementById('su-answer').style.borderColor='var(--red)'; return; }
+  document.getElementById('spin').classList.add('show');
+  const resp = await fetch('/api/verify-stepup', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({answer: ans})
+  });
   const data = await resp.json();
-  const res = document.getElementById('result');
-  res.style.display = 'block';
+  document.getElementById('spin').classList.remove('show');
   if (data.passed) {
-    res.style.background = '#e7f3ec'; res.style.color = '#31a24c';
-    res.textContent = '✅ Correct — you will receive limited (read-only) access. Redirecting...';
+    document.getElementById('result-ok').style.display = 'block';
   } else {
-    res.style.background = '#fde8e8'; res.style.color = '#fa383e';
-    res.textContent = '❌ Incorrect answer — access will be denied. Redirecting...';
+    document.getElementById('result-fail').style.display = 'block';
   }
   setTimeout(() => { window.location.href = '/decision'; }, 2200);
 }
-document.getElementById('answer').focus();
 </script>
 {% endblock %}

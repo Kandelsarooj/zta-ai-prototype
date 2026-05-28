@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Register User{% endblock %}
+{% block extra_style %}
+.reg-wrap{max-width:580px;margin:0 auto}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.success-box{display:none;background:var(--green-light);border:1px solid #bbf7d0;border-radius:var(--radius);padding:16px;margin-bottom:16px;color:#14532d;font-size:13px;align-items:center;gap:10px}
+.error-box{display:none;background:var(--red-light);border:1px solid #fecaca;border-radius:var(--radius);padding:16px;margin-bottom:16px;color:#7f1d1d;font-size:13px;align-items:center;gap:10px}
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">Register New User</div>
+    <div class="page-sub">Add a new user to the trusted user directory. Registered users can be used in custom login simulations.</div>
+  </div>
+
+  <div class="reg-wrap">
+
+    <div class="info-box info-blue" style="margin-bottom:16px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>This system currently includes pre-registered users: <strong>alice</strong> (analyst), <strong>bob</strong> (developer), <strong>carol</strong> (admin), and <strong>dave</strong> (analyst). Register new users below to expand the trusted directory.</div>
+    </div>
+
+    <div class="success-box" id="success-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="success-msg">User registered successfully!</span>
+    </div>
+
+    <div class="error-box" id="error-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="error-msg">Registration failed.</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        User Registration Form
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="full_name">Full Name</label>
+          <input type="text" id="full_name" placeholder="e.g. John Smith" required>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="e.g. jsmith" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="e.g. john@company.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Set a secure password" required>
+        </div>
+        <div class="form-group">
+          <label for="role">Role / Access Level</label>
+          <select id="role">
+            {% for r in roles %}
+            <option value="{{ r }}">{{ r.title() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="device">Registered Device</label>
+          <select id="device">
+            {% for d in devices %}
+            <option value="{{ d }}">{{ d.replace('_',' ').title() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label for="location">Work Location</label>
+          <select id="location">
+            {% for l in locations %}
+            <option value="{{ l }}">{{ l }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="info-box info-amber" style="margin-bottom:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div><strong>Zero Trust principle:</strong> Only users registered in this trusted directory will pass ZTA identity and role checks. Unregistered users are automatically denied at Check 1.</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="registerUser()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Register User
+        <span class="spinner" id="spin"></span>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function registerUser() {
+  const data = {
+    full_name: document.getElementById('full_name').value.trim(),
+    username: document.getElementById('username').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    password: document.getElementById('password').value,
+    role: document.getElementById('role').value,
+    device: document.getElementById('device').value,
+    location: document.getElementById('location').value
+  };
+  if (!data.full_name || !data.username || !data.password) {
+    showError('Please fill in all required fields.');
+    return;
+  }
+  document.getElementById('spin').classList.add('show');
+  const resp = await fetch('/register', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  });
+  const result = await resp.json();
+  document.getElementById('spin').classList.remove('show');
+  if (result.success) {
+    showSuccess(`User "${data.username}" registered successfully! They can now pass ZTA identity checks.`);
+    document.getElementById('full_name').value = '';
+    document.getElementById('username').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+  } else {
+    showError(result.message);
+  }
+}
+function showSuccess(msg) {
+  const el = document.getElementById('success-box');
+  document.getElementById('success-msg').textContent = msg;
+  el.style.display = 'flex';
+  document.getElementById('error-box').style.display = 'none';
+}
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  document.getElementById('error-msg').textContent = msg;
+  el.style.display = 'flex';
+  document.getElementById('success-box').style.display = 'none';
+}
+</script>
+{% endblock %}
